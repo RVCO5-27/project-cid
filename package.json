@@ -1,14 +1,31 @@
 {
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "mysql2": "^3.19.1",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+  "name": "cid-shs-portal",
+  "version": "1.0.0",
+  "description": "CID SHS Portal - Full-stack school management application",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "frontend": "npm run dev --prefix frontend",
+    "backend": "npm run dev --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "test": "concurrently \"npm test --prefix backend\" \"npm test --prefix frontend\"",
+    "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend",
+    "start": "npm start --prefix backend"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.8"
-  }
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "react",
+    "express",
+    "mysql",
+    "school",
+    "portal"
+  ],
+  "author": "",
+  "license": "ISC"
 }
