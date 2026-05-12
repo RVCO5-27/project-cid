@@ -23,7 +23,15 @@ function getCorsAllowedOrigins() {
   }
   // Vite defaults to 5173; some setups use 5174. 
   // http://localhost is added for standard XAMPP/Apache frontend access.
-  return ['http://localhost:5173', 'http://localhost:5174', 'http://localhost', 'http://127.0.0.1'];
+  // Render and Vercel deployments added for production.
+  return [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://project-cid-nine.vercel.app',
+    'https://project-cid.onrender.com'
+  ];
 }
 
 app.use(

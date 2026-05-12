@@ -1,0 +1,73 @@
+services:
+  - type: private
+    name: mysql
+    env: docker
+    repo: https://github.com/render-examples/mysql
+    branch: master
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 10
+    envVars:
+      - key: MYSQL_DATABASE
+        value: project_cid
+      - key: MYSQL_USER
+        value: app_user
+      - key: MYSQL_PASSWORD
+        value: secure_password_change_me
+      - key: MYSQL_ROOT_PASSWORD
+        value: root_secure_password_change_me
+
+  - type: web
+    name: backend
+    env: node
+    repo: https://github.com/RVCO5-27/project-cid
+    branch: main
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        value: app_user
+      - key: DB_PASSWORD
+        fromService:
+          type: private
+          name: mysql
+          property: MYSQL_PASSWORD
+      - key: DB_NAME
+        value: project_cid
+      - key: PORT
+        value: "3000"
+      - key: DB_POOL_SIZE
+        value: "20"
+      - key: DB_SSL
+        value: "false"
+      - key: FRONTEND_ORIGIN
+        value: "https://project-cid-nine.vercel.app,https://project-cid.onrender.com"
+      - key: JWT_SECRET
+        value: change-me-to-secure-random-string
+      - key: GMAIL_USER
+        value: your_email@gmail.com
+      - key: GMAIL_APP_PASSWORD
+        value: your_app_password_here
+      - key: SMTP_FROM
+        value: your_email@gmail.com
+
+  - type: static
+    name: frontend
+    repo: https://github.com/RVCO5-27/project-cid
+    branch: main
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://project-cid.onrender.com/api
+      - key: VITE_APP_NAME
+        value: Project CID
+      - key: VITE_ENV
+        value: production
