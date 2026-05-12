@@ -1,24 +1,4 @@
 services:
-  # MySQL as a private service using Docker
-  - type: private
-    name: mysql
-    env: docker
-    repo: https://github.com/render-examples/mysql
-    branch: master
-    disk:
-      name: mysql-data
-      mountPath: /var/lib/mysql
-      sizeGB: 10
-    envVars:
-      - key: MYSQL_DATABASE
-        value: project_cid
-      - key: MYSQL_USER
-        value: app_user
-      - key: MYSQL_PASSWORD
-        value: secure_password_change_me
-      - key: MYSQL_ROOT_PASSWORD
-        value: root_secure_password_change_me
-
   - type: web
     name: backend
     env: node
@@ -30,7 +10,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_HOST
-        value: mysql
+        value: localhost
       - key: DB_PORT
         value: "3306"
       - key: DB_USER
