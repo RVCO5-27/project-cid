@@ -1,8 +1,14 @@
 services:
-  - type: mysql
+  # MySQL as a private service using Docker
+  - type: private
     name: mysql
-    plan: standard
-    ipAllowList: []
+    env: docker
+    repo: https://github.com/render-examples/mysql
+    branch: master
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 10
     envVars:
       - key: MYSQL_DATABASE
         value: project_cid
