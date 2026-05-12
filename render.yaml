@@ -48,7 +48,7 @@ services:
       - key: FRONTEND_ORIGIN
         value: "https://project-cid-nine.vercel.app,https://project-cid.onrender.com"
       - key: JWT_SECRET
-        value: change-me-to-secure-random-string
+        value: 37b267480b0484748d81e30372c10e6fad994dea7a5d0447be30bf84011889c84e617e2472695676ef9c04b11171b1b562d291670998c07aef423a0040831926
       - key: GMAIL_USER
         value: your_email@gmail.com
       - key: GMAIL_APP_PASSWORD
