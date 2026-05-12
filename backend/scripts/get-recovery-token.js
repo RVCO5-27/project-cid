@@ -57,7 +57,8 @@ const db = require('../config/db');
     
     if (validToken) {
       console.log('🔗 RECOVERY LINK:\n');
-      const frontendOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+      const raw = process.env.FRONTEND_APP_URL || process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+      const frontendOrigin = String(raw).split(',')[0].trim().replace(/\/+$/, '');
       const url = `${frontendOrigin}/admin/reset-access?token=${validToken.token}`;
       console.log(url);
       console.log('\n👇 Copy the link above and open it in your browser.\n');

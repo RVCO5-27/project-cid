@@ -7,8 +7,25 @@
  */
 require('dotenv').config();
 
+/**
+ * Single origin for links in emails. FRONTEND_ORIGIN is often comma-separated (CORS);
+ * using it verbatim produces invalid URLs like http://a,http://b/path.
+ */
+function getPublicFrontendBase() {
+  const explicit =
+    process.env.FRONTEND_APP_URL ||
+    process.env.PUBLIC_APP_URL ||
+    process.env.FRONTEND_URL;
+  if (explicit) {
+    return String(explicit).trim().replace(/\/+$/, '');
+  }
+  const raw = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+  const first = String(raw).split(',')[0].trim();
+  return first.replace(/\/+$/, '');
+}
+
 function buildRecoveryLink(token) {
-  const base = (process.env.FRONTEND_ORIGIN || 'http://localhost:5173').replace(/\/$/, '');
+  const base = getPublicFrontendBase();
   return `${base}/admin/reset-access?token=${encodeURIComponent(token)}`;
 }
 
