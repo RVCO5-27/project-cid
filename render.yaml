@@ -1,65 +1,48 @@
-databases:
-  - name: mysql
-    plan: free       # use "starter" if you need more than free tier
-
-services:
-  - type: web
-    name: backend
-    env: node
-    repo: https://github.com/RVCO5-27/project-cid
-    branch: main
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
-    envVars:
-      # Database connection – auto‑injected by Render from the linked MySQL service
-      - key: DB_HOST
-        fromDatabase:
-          name: mysql
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: mysql
-          property: port
-      - key: DB_USER
-        fromDatabase:
-          name: mysql
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: mysql
-          property: password
-      - key: DB_NAME
-        fromDatabase:
-          name: mysql
-          property: database
-
-      # Non‑sensitive runtime configuration
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: "3000"
-      - key: DB_POOL_SIZE
-        value: "20"
-      - key: DB_SSL
-        value: "false"
-      - key: FRONTEND_ORIGIN
-        value: "https://project-cid-nine.vercel.app,https://project-cid.onrender.com,http://localhost:5173,http://localhost,http://127.0.0.1"
+# Exported from Render on 2026-05-12T04:05:28Z
+version: "1"
+projects:
+- name: Cid
+  environments:
+  - name: Production
+    services:
+    - type: web
+      name: project-cid
+      runtime: node
+      repo: https://github.com/RVCO5-27/project-cid
+      plan: free
+      envVars:
+      - key: SMTP_FROM
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: LOG_LEVEL
-        value: info
-
-      # Secrets – MUST NOT be defined here. They will be set manually in the dashboard as SECRET vars.
-      # No JWT_SECRET, GMAIL_USER, GMAIL_APP_PASSWORD, SMTP_FROM in this file.
-
-static_sites:
-  - name: frontend
-    repo: https://github.com/RVCO5-27/project-cid
-    branch: main
-    buildCommand: cd frontend && npm install && npm run build
-    publishDir: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://project-cid.onrender.com/api
-      - key: VITE_APP_NAME
-        value: Project CID
-      - key: VITE_ENV
-        value: production
+        sync: false
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: DB_SSL
+        sync: false
+      - key: DB_POOL_SIZE
+        sync: false
+      - key: PORT
+        sync: false
+      - key: NODE_ENV
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      region: oregon
+      buildCommand: npm install
+      startCommand: npm start
+      autoDeployTrigger: commit
+      rootDir: backend
