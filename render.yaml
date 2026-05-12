@@ -1,13 +1,8 @@
 services:
-  - type: private
+  - type: mysql
     name: mysql
-    env: docker
-    repo: https://github.com/render-examples/mysql
-    branch: master
-    disk:
-      name: mysql-data
-      mountPath: /var/lib/mysql
-      sizeGB: 10
+    plan: standard
+    ipAllowList: []
     envVars:
       - key: MYSQL_DATABASE
         value: project_cid
@@ -35,10 +30,7 @@ services:
       - key: DB_USER
         value: app_user
       - key: DB_PASSWORD
-        fromService:
-          type: private
-          name: mysql
-          property: MYSQL_PASSWORD
+        value: secure_password_change_me
       - key: DB_NAME
         value: project_cid
       - key: PORT
