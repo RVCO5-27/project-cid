@@ -1,3 +1,7 @@
+databases:
+  - name: mysql
+    plan: free       # use "starter" if you need more than free tier
+
 services:
   - type: web
     name: backend
@@ -7,18 +11,31 @@ services:
     buildCommand: cd backend && npm install
     startCommand: cd backend && npm start
     envVars:
+      # Database connection – auto‑injected by Render from the linked MySQL service
+      - key: DB_HOST
+        fromDatabase:
+          name: mysql
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: mysql
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: mysql
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mysql
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: mysql
+          property: database
+
+      # Non‑sensitive runtime configuration
       - key: NODE_ENV
         value: production
-      - key: DB_HOST
-        value: localhost
-      - key: DB_PORT
-        value: "3306"
-      - key: DB_USER
-        value: app_user
-      - key: DB_PASSWORD
-        value: secure_password_change_me
-      - key: DB_NAME
-        value: project_cid
       - key: PORT
         value: "3000"
       - key: DB_POOL_SIZE
@@ -26,22 +43,19 @@ services:
       - key: DB_SSL
         value: "false"
       - key: FRONTEND_ORIGIN
-        value: "https://project-cid-nine.vercel.app,https://project-cid.onrender.com"
-      - key: JWT_SECRET
-        value: 37b267480b0484748d81e30372c10e6fad994dea7a5d0447be30bf84011889c84e617e2472695676ef9c04b11171b1b562d291670998c07aef423a0040831926
-      - key: GMAIL_USER
-        value: your_email@gmail.com
-      - key: GMAIL_APP_PASSWORD
-        value: your_app_password_here
-      - key: SMTP_FROM
-        value: your_email@gmail.com
+        value: "https://project-cid-nine.vercel.app,https://project-cid.onrender.com,http://localhost:5173,http://localhost,http://127.0.0.1"
+      - key: LOG_LEVEL
+        value: info
 
-  - type: static
-    name: frontend
+      # Secrets – MUST NOT be defined here. They will be set manually in the dashboard as SECRET vars.
+      # No JWT_SECRET, GMAIL_USER, GMAIL_APP_PASSWORD, SMTP_FROM in this file.
+
+static_sites:
+  - name: frontend
     repo: https://github.com/RVCO5-27/project-cid
     branch: main
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    publishDir: frontend/dist
     envVars:
       - key: VITE_API_URL
         value: https://project-cid.onrender.com/api
