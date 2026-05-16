@@ -12,21 +12,41 @@ export default function Home() {
     { value: '...', label: 'Issuances', icon: '📄' },
   ]);
 
+  // Load stats function
+  const loadStats = async () => {
+    try {
+      const data = await getStatsSummary();
+      setStats([
+        { value: `${data.privateSchools}+`, label: 'Private Schools', icon: '🏫' },
+        { value: `${data.publicSchools}+`, label: 'Public Schools', icon: '🏛️' },
+        { value: `${data.issuances}+`, label: 'Issuances', icon: '📄' },
+      ]);
+    } catch (err) {
+      console.error('Failed to load real-time stats:', err);
+    }
+  };
+
   useEffect(() => {
-    // Fetch real-time stats from database
-    const loadStats = async () => {
-      try {
-        const data = await getStatsSummary();
-        setStats([
-          { value: `${data.privateSchools}+`, label: 'Private Schools', icon: '🏫' },
-          { value: `${data.publicSchools}+`, label: 'Public Schools', icon: '🏛️' },
-          { value: `${data.issuances}+`, label: 'Issuances', icon: '📄' },
-        ]);
-      } catch (err) {
-        console.error('Failed to load real-time stats:', err);
-      }
-    };
+    // Load stats on mount
     loadStats();
+
+    // Refresh stats every 10 seconds for live updates
+    const interval = setInterval(() => {
+      loadStats();
+    }, 10000);
+
+    // Listen for custom refresh event
+    const handleRefreshStats = () => {
+      console.log('[Home] Stats refresh triggered');
+      loadStats();
+    };
+    window.addEventListener('refreshHomeStats', handleRefreshStats);
+
+    // Cleanup
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('refreshHomeStats', handleRefreshStats);
+    };
   }, []);
 
   const announcements = [

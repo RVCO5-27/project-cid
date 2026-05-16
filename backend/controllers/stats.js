@@ -8,7 +8,7 @@ exports.getSummary = async (req, res, next) => {
   try {
     const [[{ count: publicCount }]] = await db.execute("SELECT COUNT(*) as count FROM schools WHERE school_type = 'Public'");
     const [[{ count: privateCount }]] = await db.execute("SELECT COUNT(*) as count FROM schools WHERE school_type = 'Private'");
-    const [[{ count: issuanceCount }]] = await db.execute('SELECT COUNT(*) as count FROM issuances WHERE is_archived = FALSE');
+    const [[{ count: issuanceCount }]] = await db.execute('SELECT COUNT(*) as count FROM issuances WHERE is_archived = FALSE AND deleted_at IS NULL');
     const [[{ count: userCount }]] = await db.execute('SELECT COUNT(*) as count FROM admins');
     const [[{ count: categoryCount }]] = await db.execute('SELECT COUNT(*) as count FROM categories');
 

@@ -10,6 +10,21 @@ const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const { ensureImmutable } = require('./services/auditService');
 const { runMigrations } = require('./database/runMigrations');
+const {
+  validateQueryStringSize,
+  validateHeaderSize,
+  requireContentType,
+  validateContentType,
+  rejectDuplicateHeaders,
+  strictMethodValidation,
+  handleJsonParseError,
+  LIMITS,
+} = require('./middleware/requestSizeLimiter');
+const {
+  checkPayloadSize,
+  validateMalformedParams,
+  rejectMalformedJson,
+} = require('./middleware/inputValidation');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -45,8 +60,26 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: '500mb' }));
-app.use(express.urlencoded({ extended: true, limit: '500mb' }));
+
+// Request validation middleware (applied early)
+app.use(strictMethodValidation);
+app.use(validateQueryStringSize());
+app.use(validateHeaderSize());
+app.use(requireContentType);
+app.use(validateContentType());
+app.use(rejectDuplicateHeaders());
+
+// Size limits for JSON and form bodies - 1MB max
+app.use(express.json({ limit: LIMITS.JSON_BODY }));
+app.use(express.urlencoded({ extended: true, limit: LIMITS.FORM_BODY }));
+
+// Error handler for malformed JSON
+app.use(handleJsonParseError);
+
+// Additional validation middleware
+app.use(validateMalformedParams);
+app.use(checkPayloadSize(LIMITS.JSON_BODY));
+
 app.use(cookieParser());
 // Note: File upload is handled by multer in specific routes, not globally
 app.use(morgan('dev'));

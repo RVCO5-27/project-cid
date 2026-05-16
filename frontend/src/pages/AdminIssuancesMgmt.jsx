@@ -163,6 +163,8 @@ const AdminIssuancesMgmt = () => {
       await bulkUpdateIssuances({ ids: bulkSelection, action, value });
       setBulkSelection([]);
       await loadData();
+      // Refresh home page stats when bulk operations affect issuances
+      window.dispatchEvent(new Event('refreshHomeStats'));
       
       // Store action in history for Undo
       setHistory(prev => [{
@@ -223,6 +225,8 @@ const AdminIssuancesMgmt = () => {
       setIsModalOpen(false);
       showToast('Document uploaded successfully');
       loadData();
+      // Refresh home page stats when issuance is created
+      window.dispatchEvent(new Event('refreshHomeStats'));
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create issuance');
     } finally {
@@ -242,6 +246,8 @@ const AdminIssuancesMgmt = () => {
       await createIssuance(data);
       setIsModalOpen(false);
       loadData();
+      // Refresh home page stats when issuance is created
+      window.dispatchEvent(new Event('refreshHomeStats'));
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create issuance');
     } finally {
@@ -464,7 +470,7 @@ const AdminIssuancesMgmt = () => {
                       <td className="actions-cell">
                         <div className="action-button-group">
                           <button className="icon-btn-row" title="Edit" style={{ border: '1px solid #2196f3', color: '#2196f3', background: '#fff', marginRight: 4 }} onClick={() => { setModalType('issuance'); setFormData(issuance); setIsModalOpen(true); }}>Edit</button>
-                          <button className="icon-btn-row danger" title="Delete" style={{ border: '1px solid #e63946', color: '#e63946', background: '#fff' }} onClick={() => { if(window.confirm('Are you sure you want to delete this issuance?')) deleteIssuance(issuance.id, 'Admin delete').then(loadData); }}>Delete</button>
+                          <button className="icon-btn-row danger" title="Delete" style={{ border: '1px solid #e63946', color: '#e63946', background: '#fff' }} onClick={() => { if(window.confirm('Are you sure you want to delete this issuance?')) deleteIssuance(issuance.id, 'Admin delete').then(() => { loadData(); window.dispatchEvent(new Event('refreshHomeStats')); }); }}>Delete</button>
                         </div>
                       </td>
                     </tr>

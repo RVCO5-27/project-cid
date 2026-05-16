@@ -4,10 +4,10 @@ const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 const authController = require('../controllers/auth');
-const { check } = require('express-validator');
-const { validate } = require('../middleware/validate');
+const { validate, sanitizers } = require('../middleware/inputValidation');
 const { authLoginLimiter } = require('../middleware/authRateLimiter');
 const { authMiddleware, requireAdminRole } = require('../middleware/auth');
+const { LIMITS } = require('../middleware/requestSizeLimiter');
 
 const requireSuperAdmin = (req, res, next) => {
   if (req.user?.role !== 'SuperAdmin') {
@@ -35,7 +35,7 @@ const avatarUpload = multer({
       cb(null, `${req.user.id}-avatar${ext}`);
     },
   }),
-  limits: { fileSize: 12 * 1024 * 1024 },
+  limits: { fileSize: LIMITS.FILE_UPLOAD_IMAGE },
   fileFilter: (req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
     if (allowed.includes(file.mimetype)) {
@@ -46,49 +46,62 @@ const avatarUpload = multer({
   },
 });
 
+// POST /api/auth/login - User login with rate limiting
 router.post(
   '/login',
   authLoginLimiter,
   [
-    check('username')
-      .trim()
-      .notEmpty()
-      .withMessage('Username is required')
-      .isLength({ max: 50 })
-      .withMessage('Username is too long'),
-    check('password')
-      .notEmpty()
-      .withMessage('Password is required')
-      .isLength({ max: 72 })
-      .withMessage('Password is too long'),
+    ...sanitizers.username('username'),
+    ...sanitizers.password('password'),
   ],
   validate,
   authController.login
 );
 
+// POST /api/auth/recovery/consume - Consume recovery token
 router.post(
   '/recovery/consume',
-  [check('token').trim().notEmpty().matches(/^[a-fA-F0-9]{64}$/)],
+  [
+    require('../middleware/inputValidation').check('token')
+      .trim()
+      .matches(/^[a-fA-F0-9]{64}$/)
+      .withMessage('Invalid recovery token format'),
+  ],
   validate,
   authController.consumeRecovery
 );
 
+// POST /api/auth/change-password - Change password
 router.post(
   '/change-password',
   authMiddleware,
   [
-    check('newPassword').notEmpty().isLength({ min: 1, max: 72 }),
-    check('currentPassword').optional().isLength({ max: 72 }),
+    ...sanitizers.password('newPassword'),
+    ...sanitizers.password('currentPassword'),
   ],
   validate,
   authController.changePassword
 );
 
+// POST /api/auth/logout - Logout
 router.post('/logout', authController.logout);
 
+// GET /api/auth/profile - Get user profile
 router.get('/profile', authMiddleware, authController.getProfile);
+
+// PUT /api/auth/profile - Update user profile
 router.put('/profile', authMiddleware, authController.updateProfile);
-router.post('/recovery/test', authMiddleware, requireAdminRole, requireSuperAdmin, authController.sendTestRecoveryEmail);
+
+// POST /api/auth/recovery/test - Send test recovery email (SuperAdmin only)
+router.post(
+  '/recovery/test',
+  authMiddleware,
+  requireAdminRole,
+  requireSuperAdmin,
+  authController.sendTestRecoveryEmail
+);
+
+// POST /api/auth/avatar - Upload user avatar
 router.post(
   '/avatar',
   authMiddleware,
